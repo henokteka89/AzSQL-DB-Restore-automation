@@ -16,6 +16,9 @@ $SubscriptionId = "XXXX-f451-478-a516-ZZZZZ"
 # Restore the database
 Restore-AzSqlDatabase -FromPointInTimeBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -TargetDatabaseName $restoredDatabaseName -PointInTime $restorePointInTime -ResourceId "/subscriptions/$SubscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/databases/$databaseName"
 
+# Take some break (10 minutes)
+Start-Sleep -second 600
+
 # Renaming the original 
 Set-AzSqlDatabase -DatabaseName 'adventureworksnew' -NewName 'adventureworksnew_old' -ServerName $serverName -ResourceGroupName $resourceGroupName
 
@@ -24,8 +27,6 @@ Set-AzSqlDatabase -DatabaseName 'adventureworks_new' -NewName 'adventureworksnew
 
 # Scaling down after finishing the task (to S0 - 10 DTU;)  ---takes 2 to 3 minutes for small DB
 # Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S6"
-
-
 
 #references
 #https://learn.microsoft.com/en-us/azure/azure-sql/database/scripts/restore-database-powershell?view=azuresql

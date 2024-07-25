@@ -1,19 +1,32 @@
 # Connect to your Azure account
 Connect-AzAccount
 
+# Scaling up the DTU to make the restore faster (from S0 - 10 DTU to S6 - 400 DTU)
+# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S0"
+
 # Set the necessary variables
 $resourceGroupName = "HenXXX"
 $serverName = "gXXXsql01"
-$databaseName = "adventureworksnew"
-$restorePointInTime = "2024-07-23 06:00:00"
+$databaseName = "adventureworks"  # assume this is the original database
+$restorePointInTime = "2024-07-23 06:00:00"  # Put the date you wanted to restore to
 # $restorePointInTime = (Get-Date).AddHours(-1) # Adjust as needed # Look above this is substituted
-$restoredDatabaseName = "adventureworks_new"
+$restoredDatabaseName = "adventureworks_new" # This will be the new database that will substitute the original
 $SubscriptionId = "XXXX-f451-478-a516-ZZZZZ"
 
 # Restore the database
 Restore-AzSqlDatabase -FromPointInTimeBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -TargetDatabaseName $restoredDatabaseName -PointInTime $restorePointInTime -ResourceId "/subscriptions/$SubscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/databases/$databaseName"
 
+# Renaming the original 
+Set-AzSqlDatabase -DatabaseName 'adventureworksnew' -NewName 'adventureworksnew_old' -ServerName $serverName -ResourceGroupName $resourceGroupName
 
-# Scaling up and down (S0 - 10 DTU; s6 - 400 DTU)  ---takes 2 to 3 minutes for small DB
-# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S0"
+# Renaming the New to no suffix 
+Set-AzSqlDatabase -DatabaseName 'adventureworks_new' -NewName 'adventureworksnew' -ServerName $serverName -ResourceGroupName $resourceGroupName
 
+# Scaling down after finishing the task (to S0 - 10 DTU;)  ---takes 2 to 3 minutes for small DB
+# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S6"
+
+
+
+#references
+#https://learn.microsoft.com/en-us/azure/azure-sql/database/scripts/restore-database-powershell?view=azuresql
+#https://www.mssqltips.com/sqlservertip/4794/using-powershell-to-restore-an-azure-sql-database/

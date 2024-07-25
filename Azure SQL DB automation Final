@@ -12,4 +12,8 @@ $SubscriptionId = "XXXX-f451-478-a516-ZZZZZ"
 
 # Restore the database
 Restore-AzSqlDatabase -FromPointInTimeBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -TargetDatabaseName $restoredDatabaseName -PointInTime $restorePointInTime -ResourceId "/subscriptions/$SubscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/databases/$databaseName"
-#
+
+
+# Scaling up and down (S0 - 10 DTU; s6 - 400 DTU)
+# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S0"
+

@@ -1,0 +1,12 @@
+# Connect to your Azure account
+Connect-AzAccount
+
+# Set the necessary variables
+$resourceGroupName = "yourResourceGroupName"
+$serverName = "yourServerName"
+$databaseName = "yourDatabaseName"
+$restorePointInTime = (Get-Date).AddHours(-1) # Adjust as needed
+$restoredDatabaseName = "restoredDatabaseName"
+
+# Restore the database
+Restore-AzSqlDatabase -FromPointInTimeBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -TargetDatabaseName $restoredDatabaseName -PointInTime $restorePointInTime -ResourceId "/subscriptions/yourSubscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/databases/$databaseName"

@@ -1,10 +1,15 @@
-# Connect to your Azure account
+# Breaking it 
+################################################ 1 ##########################################################
+# 1 Connect to your Azure account
 Connect-AzAccount
 
-# Scaling up the DTU to make the restore faster (from S0 - 10 DTU to S6 - 400 DTU)
-# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S6"
+# 1 Scaling up the DTU to make the restore faster (from S0 - 10 DTU to S6 - 400 DTU)
+  Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S6"
 
-# Set the necessary variables
+# Take some break (5 minutes)
+ Start-Sleep -second 300
+
+# 1 Set the necessary variables
 $resourceGroupName = "HenXXX"
 $serverName = "gXXXsql01"
 $databaseName = "adventureworks"  # assume this is the original database
@@ -13,21 +18,28 @@ $restorePointInTime = "2024-07-23 06:00:00"  # Put the date you wanted to restor
 $restoredDatabaseName = "adventureworks_new" # This will be the new database that will substitute the original
 $SubscriptionId = "XXXX-f451-478-a516-ZZZZZ"
 
-# Restore the database
+# 1 Restore the database
 Restore-AzSqlDatabase -FromPointInTimeBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -TargetDatabaseName $restoredDatabaseName -PointInTime $restorePointInTime -ResourceId "/subscriptions/$SubscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/databases/$databaseName"
 
 # Take some break (10 minutes)
-Start-Sleep -second 600
+#Start-Sleep -second 600
 
+
+######### Wait until 1 finishes then go to 2
+
+
+################################################# 2 ###################################################
 # Renaming the original 
 Set-AzSqlDatabase -DatabaseName 'adventureworksnew' -NewName 'adventureworksnew_old' -ServerName $serverName -ResourceGroupName $resourceGroupName
 
-# Renaming the New to no suffix 
+# Renaming the New to have no suffix 
 Set-AzSqlDatabase -DatabaseName 'adventureworks_new' -NewName 'adventureworksnew' -ServerName $serverName -ResourceGroupName $resourceGroupName
 
 # Scaling down after finishing the task (to S0 - 10 DTU;)  ---takes 2 to 3 minutes for small DB
 # Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S0"
 
+
+################### 3 final ##############
 #Remove the Original (Put the right name)
 Remove-AzSqlDatabase -ResourceGroupName "HenokRG" -ServerName "gkodemosql01" -DatabaseName "adventureworksnew_old" 
 

@@ -2,7 +2,7 @@
 Connect-AzAccount
 
 # Scaling up the DTU to make the restore faster (from S0 - 10 DTU to S6 - 400 DTU)
-# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S0"
+# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S6"
 
 # Set the necessary variables
 $resourceGroupName = "HenXXX"
@@ -26,7 +26,7 @@ Set-AzSqlDatabase -DatabaseName 'adventureworksnew' -NewName 'adventureworksnew_
 Set-AzSqlDatabase -DatabaseName 'adventureworks_new' -NewName 'adventureworksnew' -ServerName $serverName -ResourceGroupName $resourceGroupName
 
 # Scaling down after finishing the task (to S0 - 10 DTU;)  ---takes 2 to 3 minutes for small DB
-# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S6"
+# Set-AzSqlDatabase -ResourceGroupName "HenokRG" -DatabaseName "adventureworksnew" -ServerName "gkodemosql01" -Edition "Standard" -RequestedServiceObjectiveName "S0"
 
 #Remove the Original (Put the right name)
 Remove-AzSqlDatabase -ResourceGroupName "HenokRG" -ServerName "gkodemosql01" -DatabaseName "adventureworksnew_old" 

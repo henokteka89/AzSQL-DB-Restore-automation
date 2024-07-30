@@ -1,0 +1,62 @@
+# Breaking it 
+################################################ 1 ##########################################################
+# 1 Connect to your Azure account
+  Connect-AzAccount
+ 
+# Take some break  
+   # Start-Sleep -second 5  
+
+
+# 1 Set the necessary variables  
+$resourceGroupName = "Hxxxxxxxxx"
+$serverName = "gxxxxxxxxxxxx1"
+$databaseName = "adventureworksdemo"  # Original database name
+$restorePointInTime = "2024-07-29 20:55:00"  # Restore point in time
+$restoredDatabaseName = "adventureworksdemo_new"  # New database name
+$databaseName_old = "adventureworksdemo_old"  # changing the original database name to _old
+$SubscriptionId = "xxxxxxx-f345-7868=hh-67vbc-f2f2khygubhgcfj7="
+$Edition = "Standard"
+$Tier1 = "S6"
+$Tier0 = "S0"
+
+# 2 Scaling up the DTU to make the restore faster (from S0 - 10 DTU to S6 - 400 DTU)
+   Set-AzSqlDatabase -ResourceGroupName $resourceGroupName -DatabaseName $databaseName -ServerName $serverName -Edition $Edition -RequestedServiceObjectiveName $Tier1
+ 
+ 
+# 3 Restore the database
+Restore-AzSqlDatabase -FromPointInTimeBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -TargetDatabaseName $restoredDatabaseName -PointInTime $restorePointInTime -ResourceId "/subscriptions/$SubscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/databases/$databaseName"
+ 
+
+######### Wait until 1 finishes then go to 2
+ 
+# Take some break  
+    # Start-Sleep -second 30 
+ 
+ 
+ 
+################################################# 2 ###################################################
+
+
+# 4 Renaming the original 
+ Set-AzSqlDatabase -DatabaseName $databaseName -NewName $databaseName_old -ServerName $serverName -ResourceGroupName $resourceGroupName
+ # Take some break  
+  #  Start-Sleep -second 30  
+
+  
+# 5 Renaming the New to have no suffix 
+ 
+Set-AzSqlDatabase -DatabaseName $restoredDatabaseName -NewName $databaseName -ServerName $serverName -ResourceGroupName $resourceGroupName
+# Take some break  
+ #   Start-Sleep -second 30  
+
+# 6 Scaling down after finishing the task (to S0 - 10 DTU;)  ---takes 2 to 3 minutes for small DB
+ Set-AzSqlDatabase -ResourceGroupName $resourceGroupName -DatabaseName $databaseName1 -ServerName $serverName -Edition $Edition -RequestedServiceObjectiveName $Tier0
+ 
+#  Start-Sleep -second 180  
+##### After this is done go to 3 --- the delete part
+
+
+
+################### 3 final ##############
+# 7 Remove the Original (Put the right name)
+Remove-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverName  -DatabaseName $databaseName_old
